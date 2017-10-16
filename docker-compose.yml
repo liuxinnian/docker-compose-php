@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+    nginx-container:
+        image: nginx
+        ports:
+            - "8080:80"
+        volumes:
+            - ./php/html:/var/www/html
+            - ./nginx/log:/var/log/nginx
+            - ./nginx/conf/conf.d:/etc/nginx/conf.d
+            - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+        networks:
+            - code-network
+    php-container:
+        image: liuxinnian/php:7-fpm # Can be one of: php:5-fpm, php:7-fpm
+        volumes:
+            - ./php/html:/var/www/html
+            - ./php/log:/var/log/php
+            - ./php/conf/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+        environment:
+            - APP_ENVIRONMENT=local
+        networks:
+            - code-network
+    redis-container:
+        image: redis
+        volumes:
+            - ./redis/data:/data
+        networks:
+            - code-network
+    mysql-container:
+        image: mysql:5.6
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=123456
+        networks:
+            - code-network
+
+networks:
+    code-network:
+        driver: bridge
